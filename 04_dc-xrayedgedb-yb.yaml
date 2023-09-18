@@ -5,7 +5,7 @@ kind: PodDisruptionBudget
 metadata:
   name: yb-master-pdb
 spec:
-  maxUnavailable: 1
+  maxUnavailable: 0
   selector:
     matchLabels:      
       app: "yb-master"
@@ -16,7 +16,7 @@ kind: PodDisruptionBudget
 metadata:
   name: yb-tserver-pdb
 spec:
-  maxUnavailable: 1
+  maxUnavailable: 0
   selector:
     matchLabels:      
       app: "yb-tserver"
@@ -30,10 +30,6 @@ metadata:
 data:
   yb-master-0-pre_debug_hook.sh: "echo 'hello-from-pre' " 
   yb-master-0-post_debug_hook.sh: "echo 'hello-from-post' "
-  yb-master-1-pre_debug_hook.sh: "echo 'hello-from-pre' " 
-  yb-master-1-post_debug_hook.sh: "echo 'hello-from-post' "
-  yb-master-2-pre_debug_hook.sh: "echo 'hello-from-pre' " 
-  yb-master-2-post_debug_hook.sh: "echo 'hello-from-post' "
 ---
 # Source: yugabyte/templates/debug_config_map.yaml
 apiVersion: v1
@@ -44,10 +40,6 @@ metadata:
 data:
   yb-tserver-0-pre_debug_hook.sh: "echo 'hello-from-pre' " 
   yb-tserver-0-post_debug_hook.sh: "echo 'hello-from-post' "
-  yb-tserver-1-pre_debug_hook.sh: "echo 'hello-from-pre' " 
-  yb-tserver-1-post_debug_hook.sh: "echo 'hello-from-post' "
-  yb-tserver-2-pre_debug_hook.sh: "echo 'hello-from-pre' " 
-  yb-tserver-2-post_debug_hook.sh: "echo 'hello-from-post' "
 ---
 # Source: yugabyte/templates/service.yaml
 apiVersion: v1
@@ -121,7 +113,7 @@ spec:
   serviceName: "yb-masters"
   podManagementPolicy: Parallel
   
-  replicas: 3
+  replicas: 1
   
   volumeClaimTemplates:
     - metadata:
@@ -265,8 +257,8 @@ spec:
             fi && \
             exec ${k8s_parent} /home/yugabyte/bin/yb-master \
               --fs_data_dirs=/mnt/disk0 \
-              --master_addresses=yb-master-0.yb-masters.$(NAMESPACE).svc.cluster.local:7100,yb-master-1.yb-masters.$(NAMESPACE).svc.cluster.local:7100,yb-master-2.yb-masters.$(NAMESPACE).svc.cluster.local:7100 \
-              --replication_factor=3 \
+              --master_addresses=yb-master-0.yb-masters.$(NAMESPACE).svc.cluster.local:7100 \
+              --replication_factor=1 \
               --enable_ysql=true \
               --metric_node_name=$(HOSTNAME) \
               --memory_limit_hard_bytes=912261120 \
@@ -343,7 +335,7 @@ spec:
   serviceName: "yb-tservers"
   podManagementPolicy: Parallel
   
-  replicas: 3
+  replicas: 1
   
   volumeClaimTemplates:
     - metadata:
@@ -501,7 +493,7 @@ spec:
             
             exec ${k8s_parent} /home/yugabyte/bin/yb-tserver \
               --fs_data_dirs=/mnt/disk0 \
-              --tserver_master_addrs=yb-master-0.yb-masters.$(NAMESPACE).svc.cluster.local:7100,yb-master-1.yb-masters.$(NAMESPACE).svc.cluster.local:7100,yb-master-2.yb-masters.$(NAMESPACE).svc.cluster.local:7100 \
+              --tserver_master_addrs=yb-master-0.yb-masters.$(NAMESPACE).svc.cluster.local:7100 \
               --metric_node_name=$(HOSTNAME) \
               --memory_limit_hard_bytes=912261120 \
               --stderrthreshold=0 \

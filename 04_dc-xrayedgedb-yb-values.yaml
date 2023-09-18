@@ -5,6 +5,12 @@ Image:
 fullnameOverride: xraylabdb
 nameOverride: xraylabdb
 
+replicas:
+  master: 1
+  tserver: 1
+  ## Used to set replication factor when isMultiAz is set to true
+  totalMasters: 1
+
 storage:
   master:
     count: 1
