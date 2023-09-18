@@ -1,0 +1,72 @@
+Image:
+  repository: "quay.io/yogendra/yugabyte-ubi"
+
+
+fullnameOverride: xraylabdb
+nameOverride: xraylabdb
+
+storage:
+  master:
+    count: 1
+    size: 1Gi
+    storageClass: "ocs-storagecluster-ceph-rbd"
+  tserver:
+    count: 1
+    size: 1Gi
+    storageClass: "ocs-storagecluster-ceph-rbd"
+
+resource:
+  master:
+    requests:
+      cpu: 200m
+      memory: 1Gi
+    limits:
+      cpu: 200m
+      memory: 1Gi
+  tserver:
+    requests:
+      cpu: 200m
+      memory: 1Gi
+    limits:
+      cpu: 200m
+      memory: 1Gi
+
+enableLoadBalancer: false
+
+
+
+serviceEndpoints:
+  - name: "yb-master-ui"
+    type: ClusterIP
+    annotations: {}
+    clusterIP: ""
+    ## Sets the Service's externalTrafficPolicy
+    externalTrafficPolicy: ""
+    app: "yb-master"
+    loadBalancerIP: ""
+    ports:
+      http-ui: "7000"
+
+  - name: "yb-tserver-service"
+    type: ClusterIP
+    annotations: {}
+    clusterIP: ""
+    ## Sets the Service's externalTrafficPolicy
+    externalTrafficPolicy: ""
+    app: "yb-tserver"
+    loadBalancerIP: ""
+    ports:
+      tcp-yql-port: "9042"
+      tcp-yedis-port: "6379"
+      tcp-ysql-port: "5433"
+gflags:
+  master:
+    placement_zone: zone1
+    placement_region: sg
+    placement_cloud: openshift
+    use_private_ip: never
+  tserver:
+    placement_zone: zone1
+    placement_region: sg
+    placement_cloud: openshift
+    use_private_ip: never
